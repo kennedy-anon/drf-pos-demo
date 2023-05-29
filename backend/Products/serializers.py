@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import IntegrityError
 
 from .models import Product
 
@@ -19,3 +20,9 @@ class ProductSerializer(serializers.Serializer):
             'min_selling_price',
             'created_at'
         ]
+
+    def create(self, validated_data):
+        try:
+            return Product.objects.create(**validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError("Duplicate entry. This item already exists.")
