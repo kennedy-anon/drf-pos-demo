@@ -25,6 +25,26 @@ class ProductDetailSerializer(serializers.Serializer):
             raise serializers.ValidationError("Duplicate entry. This item already exists.")
 
 
+# serializing purchase history
+class PurchaseHistorySerializer(serializers.Serializer):
+    product_id = serializers.PrimaryKeyRelatedField(queryset=ProductDetail.objects.all()) # should be a PK in ProductDetail
+    units = serializers.IntegerField()
+    buying_price = serializers.DecimalField(max_digits=7, decimal_places=2)
+
+    class Meta:
+        model = PurchaseHistory
+        fields = [
+            'product_id',
+            'units',
+            'buying_price',
+            'created_at'
+        ]
+
+    def create(self, validated_data):
+        product_id = validated_data.pop('product_id')
+
+        return PurchaseHistory.objects.create(product_id=product_id, **validated_data)
+
 # # serializes the products
 # class ProductSerializer(serializers.Serializer):
 #     product_name = serializers.CharField(max_length=255, min_length=1, allow_blank=False, trim_whitespace=True)

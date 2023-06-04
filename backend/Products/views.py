@@ -1,7 +1,7 @@
 from rest_framework import generics
 
-from .models import ProductDetail, StockLevel
-from .serializers import ProductDetailSerializer
+from .models import ProductDetail, StockLevel, PurchaseHistory
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer
 
 # for adding product details to the database
 class ProductDetailCreateAPIView(generics.CreateAPIView):
@@ -21,3 +21,11 @@ class ProductDetailCreateAPIView(generics.CreateAPIView):
             stock_level.save()
     
 product_create_view = ProductDetailCreateAPIView.as_view()
+
+
+# for storing purchase history and updating stock level
+class PurchaseHistoryCreateAPIView(generics.CreateAPIView):
+    queryset = PurchaseHistory.objects.all()
+    serializer_class = PurchaseHistorySerializer
+
+purchase_history_create_view =  PurchaseHistoryCreateAPIView.as_view()
