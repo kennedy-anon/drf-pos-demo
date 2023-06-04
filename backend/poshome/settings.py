@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'algoliasearch_django',
 
     #internal apps
     'api',
@@ -134,3 +135,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# environment variables
+ALGOLIA = {
+    'APPLICATION_ID': 'HQC4LP3GHT',
+    'API_KEY': '07d7710aaecc771d70d083470a595743',
+    'INDEX_PREFIX': 'dev_DenloyPOS'
+}

@@ -1,10 +1,42 @@
 from django.db import models
 
-# for storing products
-class Product(models.Model):
+# # to be cleared
+# class Product(models.Model):
+#     product_id = models.AutoField(primary_key=True, unique=True)
+#     product_name = models.TextField(unique=True, max_length=255)
+#     quantity = models.IntegerField()
+#     buying_price = models.DecimalField(max_digits=7, decimal_places=2)
+#     min_selling_price = models.DecimalField(max_digits=7, decimal_places=2)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# for storing product details
+class ProductDetail:
     product_id = models.AutoField(primary_key=True, unique=True)
     product_name = models.TextField(unique=True, max_length=255)
-    quantity = models.IntegerField()
-    buying_price = models.DecimalField(max_digits=7, decimal_places=2)
     min_selling_price = models.DecimalField(max_digits=7, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+# maintaining the stock level
+class StockLevel:
+    product_id = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
+    available_units = models.IntegerField()
+    min_units_alert = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+# for storing purchase history
+class PurchaseHistory:
+    product_id = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
+    units = models.IntegerField()
+    buying_price = models.DecimalField(max_digits=7, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+# for storing sales history
+class Sales:
+    product_id = models.ForeignKey(ProductDetail, on_delete=models.CASCADE)
+    units = models.IntegerField()
+    amount = models.DecimalField(max_digits=7, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,11 +1,11 @@
 from rest_framework import generics
 
-from .models import Product
-from .serializers import ProductSerializer
+from .models import ProductDetail
+from .serializers import ProductDetailSerializer
 
-# for adding new products to the database
-class ProductCreateAPIView(generics.CreateAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+# for adding product details to the database
+class ProductDetailCreateAPIView(generics.CreateAPIView):
+    queryset = ProductDetail.objects.all()
+    serializer_class = ProductDetailSerializer
     
-product_create_view = ProductCreateAPIView.as_view()
+product_create_view = ProductDetailCreateAPIView.as_view()
