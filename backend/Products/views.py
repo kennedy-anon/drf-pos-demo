@@ -16,7 +16,7 @@ class ProductDetailCreateAPIView(generics.CreateAPIView):
         try:
             stock_level = StockLevel.objects.get(product_id=product_id)
         except StockLevel.DoesNotExist:
-            # create an entry if it does not exist
+            # create an entry if the product does not exist
             stock_level = StockLevel(product_id=product_detail, available_units=0, min_units_alert=3)
             stock_level.save()
     

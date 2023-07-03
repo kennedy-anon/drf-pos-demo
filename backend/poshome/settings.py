@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     #internal apps
     'api',
     'Products',
+    'AlgoliaSearch',
 ]
 
 MIDDLEWARE = [
@@ -139,6 +140,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # environment variables
 ALGOLIA = {
     'APPLICATION_ID': 'HQC4LP3GHT',
-    'API_KEY': '07d7710aaecc771d70d083470a595743',
+    'API_KEY': 'ec1c210111c4b288df55a22b21a0d545',
+    'AUTO_INDEXING': True,
     'INDEX_PREFIX': 'dev_DenloyPOS'
 }
