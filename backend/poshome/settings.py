@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     #internal apps
     'api',
     'Products',
-    'AlgoliaSearch',
 ]
 
 MIDDLEWARE = [
