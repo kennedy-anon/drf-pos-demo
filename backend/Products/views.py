@@ -2,11 +2,13 @@ from rest_framework import generics
 
 from .models import ProductDetail, StockLevel, PurchaseHistory
 from .serializers import ProductDetailSerializer, PurchaseHistorySerializer
+from api.permissions import IsAdminPermission
 
 # for adding product details to the database
 class ProductDetailCreateAPIView(generics.CreateAPIView):
     queryset = ProductDetail.objects.all()
     serializer_class = ProductDetailSerializer
+    permission_classes = [IsAdminPermission]
 
     def perform_create(self, serializer):
         product_detail = serializer.save()
@@ -27,5 +29,6 @@ product_create_view = ProductDetailCreateAPIView.as_view()
 class PurchaseHistoryCreateAPIView(generics.CreateAPIView):
     queryset = PurchaseHistory.objects.all()
     serializer_class = PurchaseHistorySerializer
+    permission_classes = [IsAdminPermission]
 
 purchase_history_create_view =  PurchaseHistoryCreateAPIView.as_view()
