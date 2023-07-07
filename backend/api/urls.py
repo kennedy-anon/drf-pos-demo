@@ -13,4 +13,5 @@ urlpatterns = [
 
     # application paths
     path('products/', include('Products.urls')),
+    path('auth/', include('user.urls')),
 ]
