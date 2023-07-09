@@ -22,7 +22,7 @@ class ProductDetailSerializer(serializers.Serializer):
         try:
             return ProductDetail.objects.create(**validated_data)
         except IntegrityError:
-            raise serializers.ValidationError({'detail': "Duplicate entry. This item already exists."})
+            raise serializers.ValidationError({'detail': "Duplicate entry. This item already exists.", 'product_name': validated_data['product_name']})
 
 
 # serializing purchase history
