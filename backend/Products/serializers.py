@@ -7,7 +7,7 @@ from .models import ProductDetail, StockLevel, PurchaseHistory, Sales #Product
 # serializing product details
 class ProductDetailSerializer(serializers.Serializer):
     product_name = serializers.CharField(max_length=255, min_length=1, allow_blank=False, trim_whitespace=True)
-    min_selling_price = serializers.DecimalField(max_digits=7, decimal_places=2)
+    min_selling_price = serializers.DecimalField(max_digits=7, decimal_places=2, allow_null=True, required=False)
 
     class Meta:
         model = ProductDetail
@@ -22,7 +22,7 @@ class ProductDetailSerializer(serializers.Serializer):
         try:
             return ProductDetail.objects.create(**validated_data)
         except IntegrityError:
-            raise serializers.ValidationError("Duplicate entry. This item already exists.")
+            raise serializers.ValidationError({'detail': "Duplicate entry. This item already exists."})
 
 
 # serializing purchase history
