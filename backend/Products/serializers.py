@@ -39,15 +39,3 @@ class PurchaseHistorySerializer(serializers.Serializer):
             'buying_price',
             'created_at'
         ]
-
-    def create(self, validated_data):
-        product_id = validated_data.pop('product_id')
-
-        purchase_history =  PurchaseHistory.objects.create(product_id=product_id, **validated_data)
-
-        # update the stock level
-        stock_level = StockLevel.objects.get(product_id=product_id)
-        stock_level.available_units += purchase_history.units
-        stock_level.save()
-
-        return purchase_history
