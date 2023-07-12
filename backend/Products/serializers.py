@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import IntegrityError
 
-from .models import ProductDetail, StockLevel, PurchaseHistory, Sales #Product
+from .models import ProductDetail, PurchaseHistory, Sales #Product
 
 
 # serializing product details
@@ -39,3 +39,21 @@ class PurchaseHistorySerializer(serializers.Serializer):
             'buying_price',
             'created_at'
         ]
+
+
+
+# serializing sales
+class PosSerializer(serializers.Serializer):
+    product_id = serializers.PrimaryKeyRelatedField(queryset=ProductDetail.objects.all()) # should be a PK in ProductDetail
+    units = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=7, decimal_places=2)
+
+    class Meta:
+        model = Sales
+        fields = [
+            'product_id',
+            'units',
+            'amount',
+            'created_at'
+        ]
+

@@ -1,9 +1,9 @@
 from rest_framework import generics
 from rest_framework.response import Response
 
-from .models import ProductDetail, StockLevel, PurchaseHistory
-from .serializers import ProductDetailSerializer, PurchaseHistorySerializer
-from api.permissions import IsAdminPermission
+from .models import ProductDetail, StockLevel, PurchaseHistory, Sales
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer
+from api.permissions import IsAdminPermission, IsCashier
 
 # for adding product details to the database
 class ProductDetailCreateAPIView(generics.CreateAPIView):
@@ -49,3 +49,27 @@ class PurchaseHistoryCreateAPIView(generics.CreateAPIView):
 
 
 purchase_history_create_view =  PurchaseHistoryCreateAPIView.as_view()
+
+
+# point of sale
+class PosCreateAPIView(generics.CreateAPIView):
+    queryset = Sales.objects.all()
+    serializer_class = PosSerializer
+    permission_classes = [IsCashier]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        for validated_data in serializer.validated_data:
+            product_id = validated_data.pop('product_id')
+            sale = Sales.objects.create(product_id=product_id, **validated_data)
+
+            # update the stock level
+            stock_level = StockLevel.objects.get(product_id=product_id)
+            stock_level.available_units -= sale.units
+            stock_level.save()
+
+        return Response({'detail': 'Sale added successfully.'}, status=201)
+    
+pos_view = PosCreateAPIView.as_view()

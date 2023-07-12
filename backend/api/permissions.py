@@ -7,3 +7,12 @@ class IsAdminPermission(BasePermission):
     def has_permission(self, request, view):
         # check if the user belongs to the SystemAdmin
         return request.user.groups.filter(name='SystemAdmin').exists()
+    
+
+# permission to sell
+class IsCashier(BasePermission):
+    message = 'You do not have permission to do that.'
+
+    def has_permission(self, request, view):
+        # check if the user has cashier access
+        return request.user.groups.filter(name='Cashier').exists()
