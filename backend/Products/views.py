@@ -72,7 +72,7 @@ class PosCreateAPIView(generics.CreateAPIView):
             # handle credit sales
             invoice = Invoices.objects.create(**invoice_data)
             invoice_no = invoice.invoice_no
-            saveSale(invoice_no, products_data, sale_type)
+            saveSale(invoice, products_data, sale_type)
         elif (sale_type == 'cash'):
             # handle cash sales
             invoice_no = None
@@ -95,4 +95,3 @@ def saveSale(invoice_no, products_data, sale_type):
         stock_level = StockLevel.objects.get(product_id=product_id)
         stock_level.available_units -= sale.units
         stock_level.save()
-        
