@@ -28,7 +28,7 @@ class PurchaseHistory(models.Model):
 class Invoices(models.Model):
     invoice_no = models.AutoField(primary_key=True, unique=True)
     customer_name = models.CharField(max_length=255)
-    customer_contact_no = models.BigIntegerField(null=True)
+    customer_contact_no = models.CharField(max_length=255, null=True)
     invoice_amount = models.DecimalField(max_digits=14, decimal_places=2)
     invoice_paid = models.DecimalField(max_digits=14, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)

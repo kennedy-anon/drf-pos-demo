@@ -41,19 +41,38 @@ class PurchaseHistorySerializer(serializers.Serializer):
         ]
 
 
+# serializing sale invoice
+class InvoiceSerializer(serializers.Serializer):
+    customer_name = serializers.CharField(max_length=255, allow_blank=True)
+    customer_contact_no = serializers.CharField(max_length=255, allow_blank=True)
+    invoice_amount = serializers.DecimalField(max_digits=14, decimal_places=2, allow_null=True)
+    invoice_paid = serializers.DecimalField(max_digits=14, decimal_places=2, allow_null=True)
 
-# serializing sales
-class PosSerializer(serializers.Serializer):
+
+# serializing sale product
+class PosProductSerializer(serializers.Serializer):
     product_id = serializers.PrimaryKeyRelatedField(queryset=ProductDetail.objects.all()) # should be a PK in ProductDetail
     units = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=14, decimal_places=2)
 
-    class Meta:
+
+# serailizing pos
+class PosSerializer(serializers.Serializer):
+    products = PosProductSerializer(many=True)
+    sale_type = serializers.CharField(max_length=255)
+    total_sales = serializers.DecimalField(max_digits=14, decimal_places=2)
+    cash_received = serializers.DecimalField(max_digits=14, decimal_places=2, allow_null=True)
+    change = serializers.DecimalField(max_digits=14, decimal_places=2, allow_null=True)
+    invoice = InvoiceSerializer()
+
+    class meta:
         model = Sales
         fields = [
-            'product_id',
-            'units',
-            'amount',
+            'products',
+            'sale_type',
+            'total_sales',
+            'cash_received',
+            'change',
+            'invoice',
             'created_at'
         ]
-
