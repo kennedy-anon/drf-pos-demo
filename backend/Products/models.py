@@ -30,7 +30,7 @@ class Invoices(models.Model):
     customer_name = models.CharField(max_length=255)
     customer_contact_no = models.CharField(max_length=255, null=True)
     invoice_amount = models.DecimalField(max_digits=14, decimal_places=2)
-    invoice_paid = models.DecimalField(max_digits=14, decimal_places=2)
+    invoice_paid = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
