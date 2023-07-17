@@ -7,7 +7,7 @@ from .models import ProductDetail, PurchaseHistory, Sales #Product
 # serializing product details
 class ProductDetailSerializer(serializers.Serializer):
     product_name = serializers.CharField(max_length=255, min_length=1, allow_blank=False, trim_whitespace=True)
-    min_selling_price = serializers.DecimalField(max_digits=7, decimal_places=2, allow_null=True, required=False)
+    min_selling_price = serializers.DecimalField(max_digits=14, decimal_places=2, allow_null=True, required=False)
 
     class Meta:
         model = ProductDetail
@@ -29,7 +29,7 @@ class ProductDetailSerializer(serializers.Serializer):
 class PurchaseHistorySerializer(serializers.Serializer):
     product_id = serializers.PrimaryKeyRelatedField(queryset=ProductDetail.objects.all()) # should be a PK in ProductDetail
     units = serializers.IntegerField()
-    buying_price = serializers.DecimalField(max_digits=7, decimal_places=2)
+    buying_price = serializers.DecimalField(max_digits=14, decimal_places=2)
 
     class Meta:
         model = PurchaseHistory
@@ -46,7 +46,7 @@ class PurchaseHistorySerializer(serializers.Serializer):
 class PosSerializer(serializers.Serializer):
     product_id = serializers.PrimaryKeyRelatedField(queryset=ProductDetail.objects.all()) # should be a PK in ProductDetail
     units = serializers.IntegerField()
-    amount = serializers.DecimalField(max_digits=7, decimal_places=2)
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2)
 
     class Meta:
         model = Sales
