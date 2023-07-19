@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     #internal apps
     'api',
     'Products',
+    'payments',
+    'poshome',
+    'sales',
+    'user',
 ]
 
 MIDDLEWARE = [
