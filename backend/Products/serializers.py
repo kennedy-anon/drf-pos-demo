@@ -20,7 +20,6 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     # get available units
     def get_available_units(self, obj):
-        print(obj.product_id)
         return (StockLevel.objects.get(product_id=obj.product_id)).available_units
     
     # get minimum units alert
