@@ -28,7 +28,6 @@ class SalesSerializer(serializers.ModelSerializer):
 
 # serializes details of a credit view
 class creditSaleDetailSerializer(serializers.ModelSerializer):
-    invoice_no = serializers.PrimaryKeyRelatedField(queryset=Invoices.objects.all())
     unit_price = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
 
@@ -48,5 +47,5 @@ class creditSaleDetailSerializer(serializers.ModelSerializer):
     
     # get product name
     def get_product_name(self, obj):
-        return (ProductDetail.objects.get(product_id=obj.product_id)).product_name
+        return (ProductDetail.objects.get(product_id=obj.product_id_id)).product_name
         
