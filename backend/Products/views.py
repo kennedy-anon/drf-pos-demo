@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
-from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer
 from api.permissions import IsAdminPermission, IsCashier
 
 # for adding product details to the database
@@ -24,6 +24,15 @@ class ProductDetailCreateAPIView(generics.CreateAPIView):
             stock_level.save()
     
 product_create_view = ProductDetailCreateAPIView.as_view()
+
+
+# for listing products
+class ProductListAPIView(generics.ListAPIView):
+    queryset = ProductDetail.objects.all()
+    serializer_class = ProductListSerializer
+    permission_classes = [IsAdminPermission]
+
+product_list_view = ProductListAPIView.as_view()
 
 
 # for storing purchase history and updating stock level

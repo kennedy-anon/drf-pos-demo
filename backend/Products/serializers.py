@@ -1,7 +1,31 @@
 from rest_framework import serializers
 from django.db import IntegrityError
 
-from .models import ProductDetail, PurchaseHistory, Sales #Product
+from .models import ProductDetail, PurchaseHistory, Sales, StockLevel
+
+# serializing product list
+class ProductListSerializer(serializers.ModelSerializer):
+    available_units = serializers.SerializerMethodField()
+    min_units_alert = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductDetail
+        fields = [
+            'product_id',
+            'product_name',
+            'min_selling_price',
+            'available_units',
+            'min_units_alert',
+        ]
+
+    # get available units
+    def get_available_units(self, obj):
+        print(obj.product_id)
+        return (StockLevel.objects.get(product_id=obj.product_id)).available_units
+    
+    # get minimum units alert
+    def get_min_units_alert(self, obj):
+        return (StockLevel.objects.get(product_id=obj.product_id)).min_units_alert
 
 
 # serializing product details
