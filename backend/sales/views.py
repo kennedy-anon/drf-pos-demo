@@ -1,8 +1,11 @@
 from rest_framework import generics
+from rest_framework.response import Response
 
 from Products.models import Invoices, Sales
-from .serializers import SalesSerializer, creditSaleDetailSerializer
+from .serializers import SalesSerializer, creditSaleDetailSerializer, CreditSalePaymentSerializer
 from api.permissions import IsAdminPermission
+from payments.models import CreditSalePayment
+
 
 # for viewing credit sales
 class CreditSalesView(generics.ListAPIView):
@@ -14,15 +17,17 @@ credit_sales_view = CreditSalesView.as_view()
 
 
 # for viewing credit sale detailed
-class creditSaleDetailView(generics.ListAPIView):
-    queryset = Sales.objects.all()
-    serializer_class = creditSaleDetailSerializer
+class creditSaleDetailView(generics.GenericAPIView):
     permission_classes = [IsAdminPermission]
 
-    def get_queryset(self):
-        invoice_no = self.request.query_params.get('invoice_no')
-        if invoice_no is not None:
-            return Sales.objects.filter(invoice_no=invoice_no)
-        return super().get_queryset()
+    def get(self, request, *args, **kwargs):
+        invoice_no = request.query_params.get('invoice_no')
+        payments = CreditSalePayment.objects.filter(invoice_no=invoice_no)
+        products = Sales.objects.filter(invoice_no=invoice_no)
 
+        payment_serializer = CreditSalePaymentSerializer(payments, many=True)
+        product_serializer = creditSaleDetailSerializer(products, many=True)
+
+        return Response({'payments': payment_serializer.data, 'products': product_serializer.data}, status=200)
+    
 credit_sale_detail_view = creditSaleDetailView.as_view()

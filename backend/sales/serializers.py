@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from Products.models import Invoices, Sales, ProductDetail
+from payments.models import CreditSalePayment
 
 # serialize credit sales
 class SalesSerializer(serializers.ModelSerializer):
@@ -48,4 +49,16 @@ class creditSaleDetailSerializer(serializers.ModelSerializer):
     # get product name
     def get_product_name(self, obj):
         return (ProductDetail.objects.get(product_id=obj.product_id_id)).product_name
+    
+
+# serializing credit sales payments
+class CreditSalePaymentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CreditSalePayment
+        fields = [
+            'payment_id',
+            'amount',
+            'created_at'
+        ]
         
