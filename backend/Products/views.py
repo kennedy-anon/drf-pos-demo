@@ -2,9 +2,8 @@ from rest_framework import generics, serializers
 from rest_framework.response import Response
 from django.db import transaction
 
-
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
-from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer
 from api.permissions import IsAdminPermission, IsCashier
 
 # for updating ProductDetail and StockLevel model
@@ -62,6 +61,19 @@ class ProductListAPIView(generics.ListAPIView):
     permission_classes = [IsAdminPermission]
 
 product_list_view = ProductListAPIView.as_view()
+
+
+# deleting a product
+class ProductDeleteAPIView(generics.DestroyAPIView):
+    queryset = ProductDetail.objects.all()
+    serializer_class = ProductDeleteSerializer
+    lookup_field = 'product_id'
+    permission_classes = [IsAdminPermission]
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+product_delete_view = ProductDeleteAPIView.as_view()
 
 
 # for storing purchase history and updating stock level

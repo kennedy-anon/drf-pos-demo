@@ -24,6 +24,19 @@ class StockLevelUpdateSerializer(serializers.ModelSerializer):
         ]
 
 
+# serializing product delete
+class ProductDeleteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductDetail
+        fields = [
+            'product_id',
+            'product_name',
+            'min_selling_price',
+            'created_at'
+        ]
+
+
 # serializing product list
 class ProductListSerializer(serializers.ModelSerializer):
     available_units = serializers.SerializerMethodField()
