@@ -3,6 +3,27 @@ from django.db import IntegrityError
 
 from .models import ProductDetail, PurchaseHistory, Sales, StockLevel
 
+# serializing product detail update
+class ProductDetailUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductDetail
+        fields = [
+            'product_name',
+            'min_selling_price'
+        ]
+
+
+# serializing stock level update
+class StockLevelUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StockLevel
+        fields = [
+            'min_units_alert'
+        ]
+
+
 # serializing product list
 class ProductListSerializer(serializers.ModelSerializer):
     available_units = serializers.SerializerMethodField()

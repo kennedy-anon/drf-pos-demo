@@ -1,9 +1,37 @@
-from rest_framework import generics
+from rest_framework import generics, serializers
 from rest_framework.response import Response
+from django.db import transaction
+
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
-from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer
 from api.permissions import IsAdminPermission, IsCashier
+
+# for updating ProductDetail and StockLevel model
+class ProductDetailUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = ProductDetailUpdateSerializer
+
+    def get_object(self):
+        product_id = self.kwargs['product_id']
+        product_detail = ProductDetail.objects.get(product_id=product_id)
+        return product_detail
+    
+    @transaction.atomic
+    def perform_update(self, serializer):
+        serializer.save()  # updating product detail
+
+        product_id = self.kwargs['product_id']
+        stock_level = StockLevel.objects.get(product_id=product_id)
+
+        stock_level_serializer = StockLevelUpdateSerializer(stock_level, data=self.request.data, partial=True)
+
+        if stock_level_serializer.is_valid():
+            stock_level_serializer.save()
+        else:
+            raise serializers.ValidationError(stock_level_serializer.errors)
+        
+product_update_view = ProductDetailUpdateAPIView.as_view()
+
 
 # for adding product details to the database
 class ProductDetailCreateAPIView(generics.CreateAPIView):
