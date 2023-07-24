@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'api',
     'Products',
     'payments',
-    'poshome',
+    'purchases',
     'sales',
     'user',
 ]
