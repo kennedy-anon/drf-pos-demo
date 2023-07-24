@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 
 from Products.models import Invoices, Sales
-from .serializers import SalesSerializer, creditSaleDetailSerializer, CreditSalePaymentSerializer
+from .serializers import SalesSerializer, creditSaleDetailSerializer, CreditSalePaymentSerializer, ProductSaleSerializer
 from api.permissions import IsAdminPermission
 from payments.models import CreditSalePayment
 
@@ -31,3 +31,12 @@ class creditSaleDetailView(generics.GenericAPIView):
         return Response({'payments': payment_serializer.data, 'products': product_serializer.data}, status=200)
     
 credit_sale_detail_view = creditSaleDetailView.as_view()
+
+
+# for viewing all sales
+class ProductSaleAPIView(generics.ListAPIView):
+    queryset = Sales.objects.all()
+    serializer_class = ProductSaleSerializer
+    permission_classes = [IsAdminPermission]
+
+product_sale_view = ProductSaleAPIView.as_view()

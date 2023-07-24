@@ -3,6 +3,26 @@ from rest_framework import serializers
 from Products.models import Invoices, Sales, ProductDetail
 from payments.models import CreditSalePayment
 
+class ProductSaleSerializer(serializers.ModelSerializer):
+    product_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Sales
+        fields = [
+            'product_id',
+            'product_name',
+            'units',
+            'amount',
+            'sale_type',
+            'invoice_no',
+            'created_at'
+        ]
+
+    # get product name
+    def get_product_name(self, obj):
+        return (ProductDetail.objects.get(product_id=obj.product_id_id)).product_name
+
+
 # serialize credit sales
 class SalesSerializer(serializers.ModelSerializer):
     invoice_balance = serializers.SerializerMethodField()
