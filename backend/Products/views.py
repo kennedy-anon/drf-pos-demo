@@ -10,6 +10,7 @@ from api.permissions import IsAdminPermission, IsCashier
 # for updating ProductDetail and StockLevel model
 class ProductDetailUpdateAPIView(generics.UpdateAPIView):
     serializer_class = ProductDetailUpdateSerializer
+    permission_classes = [IsAdminPermission]
 
     def get_object(self):
         product_id = self.kwargs['product_id']
