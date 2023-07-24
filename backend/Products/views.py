@@ -1,10 +1,20 @@
 from rest_framework import generics, serializers
 from rest_framework.response import Response
 from django.db import transaction
+from django.db.models import F
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
-from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer, StockLevelLowSerializer
 from api.permissions import IsAdminPermission, IsCashier
+
+# for listing products running low on stock
+class StockLowAPIView(generics.ListAPIView):
+    queryset = StockLevel.objects.filter(available_units__lte=F('min_units_alert'))
+    serializer_class = StockLevelLowSerializer
+    permission_classes = [IsAdminPermission]
+
+stock_low_view = StockLowAPIView.as_view()
+
 
 # for updating ProductDetail and StockLevel model
 class ProductDetailUpdateAPIView(generics.UpdateAPIView):

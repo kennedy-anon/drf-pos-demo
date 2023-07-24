@@ -14,6 +14,24 @@ class ProductDetailUpdateSerializer(serializers.ModelSerializer):
         ]
 
 
+#  serializing stock running low
+class StockLevelLowSerializer(serializers.ModelSerializer):
+    product_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StockLevel
+        fields = [
+            'product_id',
+            'product_name',
+            'available_units',
+            'min_units_alert'
+        ]
+
+    # get product name
+    def get_product_name(self, obj):
+        return (ProductDetail.objects.get(product_id=obj.product_id_id)).product_name
+
+
 # serializing stock level update
 class StockLevelUpdateSerializer(serializers.ModelSerializer):
 
