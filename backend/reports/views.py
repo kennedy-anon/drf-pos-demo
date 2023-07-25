@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from dateutil.parser import parse
 
 from purchases.serializers import PurchaseHistorySerializer
-from Products.models import PurchaseHistory
+from Products.models import PurchaseHistory, Invoices, Sales
 from api.permissions import IsAdminPermission
 
 
@@ -26,9 +26,16 @@ class AmountsSumAPIView(generics.ListAPIView):
             return PurchaseHistory.objects.none()
         
         totalPurchases = PurchaseHistory.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('buying_price'))['buying_price__sum']
-        print(totalPurchases)
+        total_invoice_amount = Invoices.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('invoice_amount'))['invoice_amount__sum']
+        total_invoice_paid = Invoices.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('invoice_paid'))['invoice_paid__sum']
+        total_sales = Sales.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
 
-        return totalPurchases
+        return {
+            'totalPurchases': totalPurchases,
+            'total_invoice_amount': total_invoice_amount,
+            'total_invoice_paid': total_invoice_paid,
+            'total_sales': total_sales
+        }
     
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -36,6 +43,6 @@ class AmountsSumAPIView(generics.ListAPIView):
         if queryset is None:
             return Response({'detail': 'Invalid date format or missing dates.'}, status=400)
         
-        return Response({'total_purchases': queryset}, status=200)
+        return Response({'totals': queryset}, status=200)
     
 amounts_sum_view = AmountsSumAPIView.as_view()
