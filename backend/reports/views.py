@@ -30,10 +30,16 @@ class AmountsSumAPIView(generics.ListAPIView):
         total_invoice_paid = Invoices.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('invoice_paid'))['invoice_paid__sum']
         total_sales = Sales.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
 
+        if total_invoice_amount is not None and total_invoice_paid is not None:
+            total_invoice_unpaid = total_invoice_amount - total_invoice_paid
+        else:
+            total_invoice_unpaid = None
+
         return {
             'totalPurchases': totalPurchases,
             'total_invoice_amount': total_invoice_amount,
             'total_invoice_paid': total_invoice_paid,
+            'total_invoice_unpaid': total_invoice_unpaid,
             'total_sales': total_sales
         }
     
