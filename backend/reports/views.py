@@ -17,13 +17,13 @@ class AmountsSumAPIView(generics.ListAPIView):
         end_date_str = self.request.query_params.get('end_date')
 
         if not start_date_str or not end_date_str:
-            return PurchaseHistory.objects.none()
+            return None
         
         try:
             start_date = parse(start_date_str)
             end_date = parse(end_date_str)
         except ValueError:
-            return PurchaseHistory.objects.none()
+            return None
         
         totalPurchases = PurchaseHistory.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('buying_price'))['buying_price__sum']
         total_invoice_amount = Invoices.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('invoice_amount'))['invoice_amount__sum']
