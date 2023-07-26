@@ -159,8 +159,6 @@ class MonthlySalesReportAPIView(generics.ListAPIView):
         
         # Convert end_date to UTC
         end_date_utc = end_date.astimezone(timezone.utc)
-        print(end_date_utc)
-        print(timezone.utc)
 
         monthly_sales = []
         current_month = end_date_utc.month
@@ -168,8 +166,8 @@ class MonthlySalesReportAPIView(generics.ListAPIView):
 
         for _ in range(12):
             _, last_day_of_month = calendar.monthrange(current_year, current_month)
-            start_date = datetime(current_year, current_month, 1, tzinfo=timezone.utc)
-            end_date = datetime(current_year, current_month, last_day_of_month, 0, 0, 0, tzinfo=timezone.utc) + timedelta(days=1)
+            start_date = datetime(current_year, current_month, 1, 21, 0, 0, tzinfo=timezone.utc) - timedelta(days=1)
+            end_date = datetime(current_year, current_month, last_day_of_month, 21, 0, 0, tzinfo=timezone.utc)
 
             total_sales = Sales.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
             current_month_data = {
