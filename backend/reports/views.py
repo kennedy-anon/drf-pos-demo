@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from dateutil.parser import parse
 from django.db.models import F
 from django.utils.timezone import timedelta
+from django.utils import timezone
+from datetime import datetime
+import calendar
 
 from purchases.serializers import PurchaseHistorySerializer
 from Products.models import PurchaseHistory, Invoices, Sales
@@ -136,3 +139,63 @@ class SaleReport30DaysAPIView(generics.ListAPIView):
         return Response({'total_sales_by_day': queryset}, status=200)
     
 last_30days_sales_view = SaleReport30DaysAPIView.as_view()
+
+
+# monthly sales report
+class MonthlySalesReportAPIView(generics.ListAPIView):
+    serializer_class = SalesSerializer
+    permission_classes = [IsAdminPermission]
+
+    def get_queryset(self):
+        end_date_str = self.request.query_params.get('end_date')
+
+        if not end_date_str:
+            return None
+        
+        try:
+            end_date = parse(end_date_str)
+        except ValueError:
+            return None
+        
+        # Convert end_date to UTC
+        end_date_utc = end_date.astimezone(timezone.utc)
+        print(end_date_utc)
+        print(timezone.utc)
+
+        monthly_sales = []
+        current_month = end_date_utc.month
+        current_year = end_date_utc.year
+
+        for _ in range(12):
+            _, last_day_of_month = calendar.monthrange(current_year, current_month)
+            start_date = datetime(current_year, current_month, 1, tzinfo=timezone.utc)
+            end_date = datetime(current_year, current_month, last_day_of_month, 0, 0, 0, tzinfo=timezone.utc) + timedelta(days=1)
+
+            total_sales = Sales.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+            current_month_data = {
+                'start_date': start_date,
+                'end_date': end_date,
+                'total_sales': total_sales
+            }
+
+            monthly_sales.append(current_month_data)
+
+            # Move to the previous month
+            current_month -= 1
+            if current_month == 0:  # Wrap around to December and move to the previous year
+                current_month = 12
+                current_year -= 1
+
+
+        monthly_sales.reverse()
+        return monthly_sales
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if queryset is None:
+            return Response({'detail': 'Invalid date format or missing endDate.'}, status=400)
+        
+        return Response({'monthly_sales': queryset}, status=200)
+    
+monthly_sales_view = MonthlySalesReportAPIView.as_view()
