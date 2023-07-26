@@ -3,6 +3,7 @@ from django.db.models import Sum
 from rest_framework.response import Response
 from dateutil.parser import parse
 from django.db.models import F
+from django.utils.timezone import timedelta
 
 from purchases.serializers import PurchaseHistorySerializer
 from Products.models import PurchaseHistory, Invoices, Sales
@@ -94,3 +95,44 @@ class ProductSaleReportAPIView(generics.ListAPIView):
         return Response({'sums': queryset}, status=200)
     
 products_sales_report_view = ProductSaleReportAPIView.as_view()
+
+
+# calculating sales for the last 30 days
+class SaleReport30DaysAPIView(generics.ListAPIView):
+    serializer_class = SalesSerializer
+    permission_classes = [IsAdminPermission]
+
+    def get_queryset(self):
+        end_date_str = self.request.query_params.get('end_date')
+
+        if not end_date_str:
+            return None
+        
+        try:
+            end_date = parse(end_date_str)
+        except ValueError:
+            return None
+        
+        total_sales_by_day = []
+        for _ in range(30):
+            start_date = end_date - timedelta(days=1)
+            total_sales = Sales.objects.filter(created_at__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+            current_date = {
+                'date': start_date,
+                'total_sales': total_sales
+            }
+            total_sales_by_day.append(current_date)
+            end_date = start_date
+        
+        total_sales_by_day.reverse()
+        return total_sales_by_day
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if queryset is None:
+            return Response({'detail': 'Invalid date format or missing endDate.'}, status=400)
+        
+        return Response({'total_sales_by_day': queryset}, status=200)
+    
+last_30days_sales_view = SaleReport30DaysAPIView.as_view()
