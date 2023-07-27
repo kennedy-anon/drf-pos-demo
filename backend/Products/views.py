@@ -2,6 +2,8 @@ from rest_framework import generics, serializers
 from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import F
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
 from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer, StockLevelLowSerializer
@@ -136,11 +138,38 @@ class PosCreateAPIView(generics.CreateAPIView):
         elif (sale_type == 'cash'):
             # handle cash sales
             invoice_no = None
-            saveSale(invoice_no, products_data, sale_type)
+            # saveSale(invoice_no, products_data, sale_type)
 
-        # generate sale receipt
+            # generate sale receipt
+            receipt_pdf = self.generate_receipt_pdf(products_data, total_sales, cash_received, change)
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="sales_receipt.pdf"'
+            response.write(receipt_pdf)
+            return response
 
         return Response({'detail': 'Sale added successfully.'}, status=201)
+    
+    def generate_receipt_pdf(self, products_data, total_sales, cash_received, change):
+        receipt_pdf = canvas.Canvas("sales_receipt.pdf")
+
+        receipt_pdf.drawString(100, 800, "Sales Receipt")
+        receipt_pdf.drawString(100, 780, "------------------")
+        receipt_pdf.drawString(100, 760, "Product Name | Price")
+        y_pos = 740
+
+        for product in products_data:
+            receipt_pdf.drawString(100, y_pos, f"{product['product_id']} | Ksh{product['amount']}")
+            y_pos -= 20
+
+        receipt_pdf.drawString(100, y_pos, f"Total Sales: KSh{total_sales}")
+        receipt_pdf.drawString(100, y_pos - 20, f"Cash Received: Ksh{cash_received}")
+        receipt_pdf.drawString(100, y_pos - 40, f"Change: KSh{change}")
+
+        receipt_pdf.save()
+        with open("sales_receipt.pdf", "rb") as pdf_file:
+            pdf_content = pdf_file.read()
+
+        return pdf_content
     
 pos_view = PosCreateAPIView.as_view()
 
