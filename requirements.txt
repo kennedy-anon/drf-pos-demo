@@ -8,3 +8,4 @@ django-cors-headers
 mysqlclient
 dnspython
 python-dateutil
+reportlab
