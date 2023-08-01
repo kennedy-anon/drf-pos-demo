@@ -175,11 +175,19 @@ class PosCreateAPIView(generics.CreateAPIView):
         elements.append(Paragraph("Sales Receipt", styles['Heading5']))
         elements.append(Spacer(1, 6))
 
+        styles['Normal'].fontSize = 7
         # Convert products_data to a list of rows for the table
         table_data = [["Product Name", "Price", "", "Amount"]]
         for product in products_data:
-            row = [product['product_name'], str(product['unitPrice']), f"x{str(product['units'])}", str(product['amount'])]
+            row = [Paragraph(product['product_name'], styles['Normal']), str(product['unitPrice']), f"x{str(product['units'])}", str(product['amount'])]
             table_data.append(row)
+
+        total_row = ["", "Total", "", Paragraph(str(total_sales), styles['Normal'])]
+        table_data.append(total_row)
+        cash_row = ["", "Cash Received", "", Paragraph(str(cash_received), styles['Normal'])]
+        table_data.append(cash_row)
+        change_row = ["", "Change", "", Paragraph(str(change), styles['Normal'])]
+        table_data.append(change_row)
 
         table = Table(table_data, colWidths=[116, 40, 20, 50])
         style = TableStyle([
