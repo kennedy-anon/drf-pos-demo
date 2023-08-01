@@ -5,7 +5,7 @@ from django.db.models import F
 from reportlab.lib.pagesizes import portrait
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import BaseDocTemplate, Paragraph, Spacer, Table, TableStyle, Frame, PageTemplate
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Frame, PageTemplate, KeepTogether
 from django.http import HttpResponse
 import pytz
 import datetime
@@ -157,7 +157,7 @@ class PosCreateAPIView(generics.CreateAPIView):
         return Response({'detail': 'Sale added successfully.'}, status=201)
     
     def generate_receipt_pdf(self, products_data, total_sales, cash_received, change, username):
-        doc = BaseDocTemplate("sales_receipt.pdf", pagesize=portrait((226.08, 1000)), leftMargin=0,
+        doc = SimpleDocTemplate("sales_receipt.pdf", pagesize=portrait((226.08, 841.89)), leftMargin=0,
                     rightMargin=0,
                     topMargin=14.17,
                     bottomMargin=0,)
