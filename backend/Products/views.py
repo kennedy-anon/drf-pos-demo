@@ -153,14 +153,44 @@ class PosCreateAPIView(generics.CreateAPIView):
         return Response({'detail': 'Sale added successfully.'}, status=201)
     
     def generate_receipt_pdf(self, products_data, total_sales, cash_received, change):
-        doc = BaseDocTemplate("sales_receipt.pdf", pagesize=portrait((1000, 1000000)))
+        doc = BaseDocTemplate("sales_receipt.pdf", pagesize=portrait((226.08, 1000)), leftMargin=0,
+                    rightMargin=0,
+                    topMargin=14.17,
+                    bottomMargin=0,)
 
         elements = []
 
         styles = getSampleStyleSheet()
+        styles['Heading5'].fontName = 'Helvetica'
         styles['Heading5'].alignment = TA_CENTER
+        styles['Heading5'].spaceAfter = 0
+        styles['Heading5'].spaceBefore = 3
 
-        elements.append(Paragraph("ggg", styles['Normal']))
+        elements.append(Paragraph("Denloy Investments", styles['Heading5']))
+        elements.append(Paragraph("P.O. BOX 617", styles['Heading5']))
+        elements.append(Paragraph("KERUGOYA", styles['Heading5']))
+
+        styles['Heading5'].fontName = 'Helvetica-Bold'
+        elements.append(Spacer(1, 6))
+        elements.append(Paragraph("Sales Receipt", styles['Heading5']))
+        elements.append(Spacer(1, 6))
+
+        # Convert products_data to a list of rows for the table
+        table_data = [["Product Name", "Price", "", "Amount"]]
+        for product in products_data:
+            row = [product['product_name'], str(product['unitPrice']), f"x{str(product['units'])}", str(product['amount'])]
+            table_data.append(row)
+
+        table = Table(table_data, colWidths=[116, 40, 20, 50])
+        style = TableStyle([
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 1),
+            ('FONTSIZE', (0, 0), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 0),
+        ])
+
+        table.setStyle(style)
+        elements.append(table)
 
         page_frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
         main_template = PageTemplate(frames=[page_frame])
