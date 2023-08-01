@@ -182,6 +182,8 @@ class PosCreateAPIView(generics.CreateAPIView):
             row = [Paragraph(product['product_name'], styles['Normal']), str(product['unitPrice']), f"x{str(product['units'])}", str(product['amount'])]
             table_data.append(row)
 
+        spacer_row = ["", "--------------------", "", "---------"]
+        table_data.append(spacer_row)
         total_row = ["", "Total", "", Paragraph(str(total_sales), styles['Normal'])]
         table_data.append(total_row)
         cash_row = ["", "Cash Received", "", Paragraph(str(cash_received), styles['Normal'])]
@@ -199,6 +201,12 @@ class PosCreateAPIView(generics.CreateAPIView):
 
         table.setStyle(style)
         elements.append(table)
+
+        styles['Normal'].alignment = TA_CENTER
+        elements.append(Spacer(1, 6))
+        elements.append(Paragraph("________________________________", styles['Normal']))
+        elements.append(Paragraph("Thank you for shopping with us.", styles['Normal']))
+        elements.append(Spacer(1, 6))
 
         page_frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
         main_template = PageTemplate(frames=[page_frame])
