@@ -2,7 +2,10 @@ from rest_framework import generics, serializers
 from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import F
-from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import portrait
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import BaseDocTemplate, Paragraph, Spacer, Table, TableStyle, Frame, PageTemplate
 from django.http import HttpResponse
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
@@ -150,22 +153,20 @@ class PosCreateAPIView(generics.CreateAPIView):
         return Response({'detail': 'Sale added successfully.'}, status=201)
     
     def generate_receipt_pdf(self, products_data, total_sales, cash_received, change):
-        receipt_pdf = canvas.Canvas("sales_receipt.pdf")
+        doc = BaseDocTemplate("sales_receipt.pdf", pagesize=portrait((1000, 1000000)))
 
-        receipt_pdf.drawString(100, 800, "Sales Receipt")
-        receipt_pdf.drawString(100, 780, "------------------")
-        receipt_pdf.drawString(100, 760, "Product Name | Price")
-        y_pos = 740
+        elements = []
 
-        for product in products_data:
-            receipt_pdf.drawString(100, y_pos, f"{product['product_id']} | Ksh{product['amount']}")
-            y_pos -= 20
+        styles = getSampleStyleSheet()
+        styles['Heading5'].alignment = TA_CENTER
 
-        receipt_pdf.drawString(100, y_pos, f"Total Sales: KSh{total_sales}")
-        receipt_pdf.drawString(100, y_pos - 20, f"Cash Received: Ksh{cash_received}")
-        receipt_pdf.drawString(100, y_pos - 40, f"Change: KSh{change}")
+        elements.append(Paragraph("ggg", styles['Normal']))
 
-        receipt_pdf.save()
+        page_frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+        main_template = PageTemplate(frames=[page_frame])
+        doc.addPageTemplates(main_template)
+
+        doc.build(elements)
         with open("sales_receipt.pdf", "rb") as pdf_file:
             pdf_content = pdf_file.read()
 
@@ -178,7 +179,7 @@ pos_view = PosCreateAPIView.as_view()
 def saveSale(invoice_no, products_data, sale_type):
     for product_data in products_data:
         product_id = product_data.pop('product_id')
-        sale = Sales.objects.create(product_id=product_id, sale_type=sale_type, invoice_no=invoice_no, **product_data)
+        sale = Sales.objects.create(product_id=product_id, sale_type=sale_type, invoice_no=invoice_no, units=product_data['units'], amount=product_data['amount'])
 
         # update the stock level
         stock_level = StockLevel.objects.get(product_id=product_id)

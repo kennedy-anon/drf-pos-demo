@@ -129,6 +129,8 @@ class PosProductSerializer(serializers.Serializer):
     product_id = serializers.PrimaryKeyRelatedField(queryset=ProductDetail.objects.all()) # should be a PK in ProductDetail
     units = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=14, decimal_places=2)
+    product_name = serializers.CharField(max_length=255, min_length=1)
+    unitPrice = serializers.DecimalField(max_digits=14, decimal_places=2)
 
 
 # serailizing pos
