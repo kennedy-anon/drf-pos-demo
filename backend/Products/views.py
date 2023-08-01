@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import F
 from reportlab.lib.pagesizes import portrait
-from reportlab.lib.enums import TA_CENTER
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import BaseDocTemplate, Paragraph, Spacer, Table, TableStyle, Frame, PageTemplate
 from django.http import HttpResponse
+import pytz
+import datetime
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
 from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer, StockLevelLowSerializer
@@ -175,11 +177,26 @@ class PosCreateAPIView(generics.CreateAPIView):
         elements.append(Paragraph("Sales Receipt", styles['Heading5']))
         elements.append(Spacer(1, 6))
 
+        current_time = get_current_time()
+        styles['Heading6'].fontName = 'Helvetica'
+        elements.append(Paragraph(f"Date: {current_time.strftime('%d/%m/%Y')} {current_time.strftime('%I:%M %p')}", styles['Heading6']))
+        elements.append(Paragraph("Cashier: ", styles['Heading6']))
+        elements.append(Spacer(1, 6))
+
         styles['Normal'].fontSize = 7
+        product_name_style = ParagraphStyle(
+            name='product_name_style',
+            fontName='Helvetica',
+            fontSize=7,
+            alignment=TA_LEFT,
+            spaceAfter=0,
+            spaceBefore=0,
+        )
+
         # Convert products_data to a list of rows for the table
         table_data = [["Product Name", "Price", "", "Amount"]]
         for product in products_data:
-            row = [Paragraph(product['product_name'], styles['Normal']), str(product['unitPrice']), f"x{str(product['units'])}", str(product['amount'])]
+            row = [Paragraph(product['product_name'], product_name_style), str(product['unitPrice']), f"x{str(product['units'])}", str(product['amount'])]
             table_data.append(row)
 
         spacer_row = ["", "--------------------", "", "---------"]
@@ -231,3 +248,11 @@ def saveSale(invoice_no, products_data, sale_type):
         stock_level = StockLevel.objects.get(product_id=product_id)
         stock_level.available_units -= sale.units
         stock_level.save()
+
+
+# get current time
+def get_current_time():
+        nairobi_tz = pytz.timezone('Africa/Nairobi')
+        current_time = datetime.datetime.now(nairobi_tz)
+
+        return current_time
