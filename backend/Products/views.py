@@ -127,6 +127,8 @@ class PosCreateAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        logged_in_user = self.request.user
+        username = logged_in_user.username
 
         products_data = serializer.validated_data.pop('products')
         invoice_data = serializer.validated_data.pop('invoice')
@@ -146,7 +148,7 @@ class PosCreateAPIView(generics.CreateAPIView):
             # saveSale(invoice_no, products_data, sale_type)
 
             # generate sale receipt
-            receipt_pdf = self.generate_receipt_pdf(products_data, total_sales, cash_received, change)
+            receipt_pdf = self.generate_receipt_pdf(products_data, total_sales, cash_received, change, username)
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="sales_receipt.pdf"'
             response.write(receipt_pdf)
@@ -154,7 +156,7 @@ class PosCreateAPIView(generics.CreateAPIView):
 
         return Response({'detail': 'Sale added successfully.'}, status=201)
     
-    def generate_receipt_pdf(self, products_data, total_sales, cash_received, change):
+    def generate_receipt_pdf(self, products_data, total_sales, cash_received, change, username):
         doc = BaseDocTemplate("sales_receipt.pdf", pagesize=portrait((226.08, 1000)), leftMargin=0,
                     rightMargin=0,
                     topMargin=14.17,
@@ -180,7 +182,7 @@ class PosCreateAPIView(generics.CreateAPIView):
         current_time = get_current_time()
         styles['Heading6'].fontName = 'Helvetica'
         elements.append(Paragraph(f"Date: {current_time.strftime('%d/%m/%Y')} {current_time.strftime('%I:%M %p')}", styles['Heading6']))
-        elements.append(Paragraph("Cashier: ", styles['Heading6']))
+        elements.append(Paragraph(f"Cashier: {username.capitalize()}", styles['Heading6']))
         elements.append(Spacer(1, 6))
 
         styles['Normal'].fontSize = 7
