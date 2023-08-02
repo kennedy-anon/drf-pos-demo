@@ -134,8 +134,8 @@ class PosCreateAPIView(generics.CreateAPIView):
         invoice_data = serializer.validated_data.pop('invoice')
         sale_type = serializer.validated_data.pop('sale_type')
         total_sales = serializer.validated_data.pop('total_sales')
-        cash_received = serializer.validated_data.pop('cash_received')
-        change = serializer.validated_data.pop('change')
+        cash_received = serializer.validated_data.pop('cash_received') if serializer.validated_data.get('cash_received') is not None else ''
+        change = serializer.validated_data.pop('change') if serializer.validated_data.get('change') is not None else ''
 
         if (sale_type == 'credit'):
             # handle credit sales
