@@ -145,7 +145,7 @@ class PosCreateAPIView(generics.CreateAPIView):
         elif (sale_type == 'cash'):
             # handle cash sales
             invoice_no = None
-            # saveSale(invoice_no, products_data, sale_type)
+            saveSale(invoice_no, products_data, sale_type)
 
             # generate sale receipt
             receipt_pdf = self.generate_receipt_pdf(products_data, total_sales, cash_received, change, username)
