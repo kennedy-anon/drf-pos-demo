@@ -42,3 +42,16 @@ class UpdateUserSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False)
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
+
+
+# listing users
+class ListUsersSerializer(serializers.ModelSerializer):
+    user_groups = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'user_groups', 'is_active', 'username', 'email', 'first_name', 'last_name']
+
+    def get_user_groups(self, user):
+        groups = user.groups.all()
+        return [{'id': group.id, 'name': group.name} for group in groups]

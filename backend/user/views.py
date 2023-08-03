@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer
 from api.permissions import IsAdminPermission
 
 User = get_user_model()
@@ -83,3 +83,14 @@ class UpdateUserView(generics.CreateAPIView):
         return Response({'detail': 'User details updated.'}, status=200)
     
 update_user_view = UpdateUserView.as_view()
+
+
+# listing users
+class ListUsersView(generics.ListAPIView):
+    serializer_class = ListUsersSerializer
+    permission_classes = [IsAdminPermission]
+
+    def get_queryset(self):
+        return User.objects.all()
+    
+list_users_view = ListUsersView.as_view()

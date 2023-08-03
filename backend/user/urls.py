@@ -7,5 +7,5 @@ urlpatterns = [
     path('user/access-groups/', views.access_groups_view),
     path('user/create-new/', views.create_user_view),
     path('user/update/', views.update_user_view),
-    
+    path('user/list/', views.list_users_view),
 ]
