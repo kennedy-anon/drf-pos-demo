@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CreateUserSerializer
+from api.permissions import IsAdminPermission
 
 User = get_user_model()
 
@@ -27,3 +28,18 @@ class AccessGroupsView(APIView):
         return Response({'groups': group_names})
     
 access_groups_view = AccessGroupsView.as_view()
+
+
+# create new user
+class CreateUserView(generics.CreateAPIView):
+    serializer_class = CreateUserSerializer
+    permission_classes = [IsAdminPermission]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        return Response({'detail': 'User created successfully.'}, status=201)
+    
+create_user_view = CreateUserView.as_view()
