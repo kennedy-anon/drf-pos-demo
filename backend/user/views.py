@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer, DeleteUserSerializer
 from api.permissions import IsAdminPermission
 
 User = get_user_model()
@@ -94,3 +94,23 @@ class ListUsersView(generics.ListAPIView):
         return User.objects.all()
     
 list_users_view = ListUsersView.as_view()
+
+
+# delete user
+class DeleteUserView(generics.DestroyAPIView):
+    serializer_class = DeleteUserSerializer
+    permission_classes = [IsAdminPermission]
+
+    def delete(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = serializer.validated_data['user_id']
+        try:
+            user = User.objects.get(id=user_id)
+            user.delete()
+            return Response({'detail': 'User deleted successfully.'}, status=200)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=404)
+        
+delete_user_view = DeleteUserView.as_view()
