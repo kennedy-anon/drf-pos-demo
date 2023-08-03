@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer, DeleteUserSerializer
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer, DeleteUserSerializer, ChangePasswordSerializer
 from api.permissions import IsAdminPermission
 
 User = get_user_model()
@@ -114,3 +114,29 @@ class DeleteUserView(generics.DestroyAPIView):
             return Response({'detail': 'User not found.'}, status=404)
         
 delete_user_view = DeleteUserView.as_view()
+
+
+# view for admin to change users password
+class ChangePasswordView(generics.UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAdminPermission]
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = self.kwargs['user_id']  # Get the user ID from the URL
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=404)
+
+        # Change the password
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password changed successfully.'}, status=200)
+    
+change_password_view = ChangePasswordView.as_view()

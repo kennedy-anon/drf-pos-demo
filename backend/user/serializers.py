@@ -60,3 +60,12 @@ class ListUsersSerializer(serializers.ModelSerializer):
 # delete user
 class DeleteUserSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
+
+
+# change password, admin priviledge
+class ChangePasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
