@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 
-from .serializers import UserSerializer, CreateUserSerializer, UserPermissionsSerializer
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer
 from api.permissions import IsAdminPermission
 
 User = get_user_model()
@@ -45,9 +45,9 @@ class CreateUserView(generics.CreateAPIView):
 create_user_view = CreateUserView.as_view()
 
 
-# granting and revoking permissions
-class UserPermissionsView(generics.CreateAPIView):
-    serializer_class = UserPermissionsSerializer
+# granting and revoking permissions and updating user detail
+class UpdateUserView(generics.CreateAPIView):
+    serializer_class = UpdateUserSerializer
     permission_classes = [IsAdminPermission]
 
     def post(self, request, *args, **kwargs):
@@ -58,6 +58,10 @@ class UserPermissionsView(generics.CreateAPIView):
         groups_to_add = serializer.validated_data.get('group_ids', [])
         groups_to_remove = serializer.validated_data.get('remove_group_ids', [])
         is_active = serializer.validated_data.get('is_active', None)
+        username = serializer.validated_data.get('username')
+        email = serializer.validated_data.get('email')
+        first_name = serializer.validated_data.get('first_name')
+        last_name = serializer.validated_data.get('last_name')
 
         if groups_to_add:
             user.groups.add(*groups_to_add)
@@ -65,8 +69,17 @@ class UserPermissionsView(generics.CreateAPIView):
             user.groups.remove(*groups_to_remove)
         if is_active is not None:
             user.is_active = is_active
-            user.save()
+        if username is not None:
+            user.username = username
+        if email is not None:
+            user.email = email
+        if first_name is not None:
+            user.first_name = first_name
+        if last_name is not None:
+            user.last_name = last_name
+            
+        user.save()
 
-        return Response({'detail': 'User status updated.'}, status=200)
+        return Response({'detail': 'User details updated.'}, status=200)
     
-set_user_permissions_view = UserPermissionsView.as_view()
+update_user_view = UpdateUserView.as_view()

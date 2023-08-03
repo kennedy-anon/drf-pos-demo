@@ -32,9 +32,13 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
     
 
-# for setting & removing permissions & deactivating account
-class UserPermissionsSerializer(serializers.Serializer):
+# for updating user detail
+class UpdateUserSerializer(serializers.Serializer):
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     group_ids = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True)
     remove_group_ids = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=False, allow_null=True, many=True)
     is_active = serializers.BooleanField(required=False)
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
