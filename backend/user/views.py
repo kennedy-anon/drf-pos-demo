@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -70,7 +71,11 @@ class UpdateUserView(generics.CreateAPIView):
         if is_active is not None:
             user.is_active = is_active
         if username is not None:
-            user.username = username
+            try:
+                user.username = username
+                user.save()
+            except IntegrityError as e:
+                return Response({'detail': 'Username already exists.'}, status=400)
         if email is not None:
             user.email = email
         if first_name is not None:
