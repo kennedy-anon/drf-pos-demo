@@ -55,11 +55,6 @@ class ListUsersSerializer(serializers.ModelSerializer):
     def get_user_groups(self, user):
         groups = user.groups.all()
         return [{'id': group.id, 'name': group.name} for group in groups]
-    
-
-# delete user
-class DeleteUserSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
 
 
 # change password, admin priviledge
