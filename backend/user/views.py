@@ -3,9 +3,11 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
-from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer, ChangePasswordSerializer
-from api.permissions import IsAdminPermission
+from .serializers import UserSerializer, CreateUserSerializer, UpdateUserSerializer, ListUsersSerializer, ChangePasswordSerializer, UserChangePasswordSerializer
+from api.permissions import IsAdminPermission, IsCashier
 
 User = get_user_model()
 
@@ -142,3 +144,32 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response({'detail': 'Password changed successfully.'}, status=200)
     
 change_password_view = ChangePasswordView.as_view()
+
+
+# view for user to change his / her password
+class UserChangePasswordView(generics.UpdateAPIView):
+    serializer_class = UserChangePasswordSerializer
+    permission_classes = [IsCashier]
+
+    def update(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        old_password = serializer.validated_data.get('old_password')
+        new_password = serializer.validated_data.get('new_password')
+
+        if not user.check_password(old_password):
+            return Response({'detail': 'Incorrect old password.'}, status=400)
+        
+        try:
+            validate_password(new_password, user=user)
+        except ValidationError as e:
+            return Response({'new_password': e.messages}, status=400)
+        
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password changed successfully.'}, status=200)
+    
+change_my_password_view = UserChangePasswordView.as_view()
