@@ -11,7 +11,7 @@ import pytz
 import datetime
 
 from .models import ProductDetail, StockLevel, PurchaseHistory, Sales, Invoices
-from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer, StockLevelLowSerializer
+from .serializers import ProductDetailSerializer, PurchaseHistorySerializer, PosSerializer, ProductListSerializer, ProductDetailUpdateSerializer, StockLevelUpdateSerializer, ProductDeleteSerializer, StockLevelLowSerializer, StockLevelUpdateOpeningStockSerializer
 from api.permissions import IsAdminPermission, IsCashier
 
 # for listing products running low on stock
@@ -48,6 +48,27 @@ class ProductDetailUpdateAPIView(generics.UpdateAPIView):
             raise serializers.ValidationError(stock_level_serializer.errors)
         
 product_update_view = ProductDetailUpdateAPIView.as_view()
+
+
+# updating available units
+class UpdateAvailableUnitsView(generics.UpdateAPIView):
+    serializer_class = StockLevelUpdateOpeningStockSerializer
+    permission_classes = [IsAdminPermission]
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        product_id = self.kwargs['product_id']
+        available_units = serializer.validated_data.pop('available_units')
+
+        stock_level = StockLevel.objects.get(product_id=product_id)
+        stock_level.available_units = available_units
+        stock_level.save()
+
+        return Response({'detail': 'Stock updated successfully.'}, status=200)
+
+update_available_units_view = UpdateAvailableUnitsView.as_view()
 
 
 # for adding product details to the database

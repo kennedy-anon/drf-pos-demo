@@ -42,6 +42,12 @@ class StockLevelUpdateSerializer(serializers.ModelSerializer):
         ]
 
 
+
+# updating available units
+class StockLevelUpdateOpeningStockSerializer(serializers.Serializer):
+    available_units = serializers.IntegerField()
+
+    
 # serializing product delete
 class ProductDeleteSerializer(serializers.ModelSerializer):
 
