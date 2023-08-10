@@ -191,8 +191,8 @@ class PosCreateAPIView(generics.CreateAPIView):
         styles['Heading5'].spaceAfter = 0
         styles['Heading5'].spaceBefore = 3
 
-        elements.append(Paragraph("Denloy Investments", styles['Heading5']))
-        elements.append(Paragraph("P.O. BOX 617", styles['Heading5']))
+        elements.append(Paragraph("Kenloy Investments", styles['Heading5']))
+        elements.append(Paragraph("P.O. BOX 10300", styles['Heading5']))
         elements.append(Paragraph("KERUGOYA", styles['Heading5']))
 
         styles['Heading5'].fontName = 'Helvetica-Bold'
